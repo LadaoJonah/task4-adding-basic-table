@@ -242,3 +242,18 @@ input,select,textarea{font-family:inherit;outline:none}
 .auth-panel .field input,.auth-panel .field select{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;background:#fff}
 .auth-panel .field input:focus,.auth-panel .field select:focus{border-color:var(--brand2);box-shadow:0 0 0 3px #0891b21f}
 @media(max-width:700px){.auth-panel .form-row{grid-template-columns:1fr}.login-options{align-items:flex-start;flex-direction:column}}
+
+/* ---------- ROLE & ACCESS ASSIGNMENT ---------- */
+.form-container{width:100%;max-width:600px;margin:0 auto;padding:25px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.form-container h2{margin-bottom:10px;font-size:21px}
+.form-container>p{color:var(--muted);font-size:13px;line-height:1.5;margin-bottom:20px}
+.form-group{margin-bottom:18px}
+.form-group>label{display:block;margin-bottom:7px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.form-group select{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-size:14px}
+.form-group select:focus{border-color:var(--brand2);box-shadow:0 0 0 3px #0891b21f}
+.checkbox-group{display:flex;flex-direction:column;gap:10px}
+.checkbox-group label{font-size:13.5px;font-weight:400;color:var(--ink);cursor:pointer}
+.checkbox-group input{margin-right:8px;accent-color:var(--brand2)}
+.assign-btn{width:100%;padding:12px;border:0;border-radius:10px;background:var(--brand);color:#fff;cursor:pointer;font-size:14px;font-weight:700;transition:.15s}
+.assign-btn:hover{background:#0c6a80;transform:translateY(-1px)}
+#successMessage{min-height:20px;margin:15px 0 0;color:var(--a);font-weight:700}

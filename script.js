@@ -64,6 +64,7 @@ const navMap={
   [R_OWNER]:[
     {id:'report',tl:'Decision Support Report',sb:'Consolidated business analytics & strategy',icon:'📊',roles:[R_OWNER]},
     {id:'employees',tl:'Employee Management',sb:'Add, view and terminate staff accounts',icon:'👥',roles:[R_OWNER]},
+    {id:'roleAccess',tl:'Role & Access Assignment',sb:'Assign roles and system functions to employees',icon:'🔐',roles:[R_OWNER]},
     {id:'task5',tl:'Interactive Data Entry',sb:'Task 5 forms for employee and purchase records',icon:'📝',roles:[R_OWNER]},
     {id:'basicTables',tl:'Basic Tables',sb:'Task 4 system records and sample data',icon:'📋',roles:[R_OWNER]},
     {id:'chat',tl:'Coordination Hub',sb:'Real-time messaging across roles',icon:'💬',roles:channels.find(c=>c.id==='general').roles},
@@ -244,9 +245,10 @@ function render(){
   $('#pgTitle').textContent=meta.tl;$('#pgSub').textContent=meta.sb;
   $('#topDate').textContent=today.toLocaleDateString('en-PH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   const c=$('#content');
-  const fn={report:renderReport,employees:renderEmployees,task5:renderTask5,basicTables:renderBasicTables,supply:renderBuyer,chat:renderChat,
+  const fn={report:renderReport,employees:renderEmployees,roleAccess:renderRoleAccess,task5:renderTask5,basicTables:renderBasicTables,supply:renderBuyer,chat:renderChat,
             quality:renderQuality,inventory:renderClassified,expenses:renderExpenses,profit:renderProfit}[view];
   if(fn)c.innerHTML=fn();
+  if(view==='roleAccess')setupRoleAccessForm();
   window.scrollTo(0,0);
 }
 
@@ -741,6 +743,85 @@ function ownerChangePassword(id){
   e.pw=p; saveAuthState();
   toast('Password changed for '+e.id+'.');
   render();
+}
+
+function renderRoleAccess(){
+  const employees=state.employees;
+  return `
+  <section class="form-container">
+    <h2>Role &amp; Access Assignment</h2>
+    <p>Assign an employee a role and select the functions they are allowed to access.</p>
+    <form id="roleAccessForm">
+      <div class="form-group">
+        <label for="employee">Select Employee:</label>
+        <select id="employee" name="employee" required>
+          <option value="">-- Select Employee --</option>
+          ${employees.map(e=>`<option value="${esc(e.id)}">${esc(e.f+' '+e.l)} (${esc(e.id)})</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="role">Select Role:</label>
+        <select id="role" name="role" required>
+          <option value="">-- Select Role --</option>
+          ${ROLES.map(role=>`<option value="${role}">${role}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>System Access:</label>
+        <div class="checkbox-group">
+          ${['Fish Quality','Inventory','Sales','Reports'].map(access=>`<label><input type="checkbox" name="access" value="${access}"> ${access}</label>`).join('')}
+        </div>
+      </div>
+      <button type="submit" class="assign-btn">Assign Role</button>
+    </form>
+    <p id="successMessage" role="status" aria-live="polite"></p>
+  </section>`;
+}
+
+function setupRoleAccessForm(){
+  const roleAccessForm=document.getElementById('roleAccessForm');
+  const successMessage=document.getElementById('successMessage');
+  if(!roleAccessForm||!successMessage)return;
+
+  roleAccessForm.addEventListener('submit',function(event){
+    event.preventDefault();
+
+    const employeeId=document.getElementById('employee').value;
+    const role=document.getElementById('role').value;
+    const checkedAccess=document.querySelectorAll('input[name="access"]:checked');
+    const accessList=[];
+
+    checkedAccess.forEach(function(access){accessList.push(access.value);});
+
+    if(employeeId===''){
+      successMessage.textContent='Please select an employee.';
+      return;
+    }
+    if(role===''){
+      successMessage.textContent='Please select a role.';
+      return;
+    }
+    if(accessList.length===0){
+      successMessage.textContent='Please select at least one system access.';
+      return;
+    }
+
+    const employee=byId(employeeId);
+    if(!employee){
+      successMessage.textContent='Please select a valid employee.';
+      return;
+    }
+
+    employee.role=role;
+    employee.access=accessList;
+    saveAuthState();
+    successMessage.innerHTML='✅ <strong>Role Assignment Successful!</strong><br>'+
+      'Employee: '+esc(employee.f+' '+employee.l)+'<br>'+
+      'Role: '+esc(role)+'<br>'+
+      'Access: '+esc(accessList.join(', '));
+    toast('Role and access updated for '+employee.id+'.');
+    roleAccessForm.reset();
+  });
 }
 
 /* ================= OWNER — DECISION SUPPORT REPORT ================= */
